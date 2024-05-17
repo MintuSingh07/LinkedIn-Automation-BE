@@ -111,8 +111,8 @@ app.post('/post-to-linkedin', async (req, res) => {
         await page.type('#password', l_password);
         await page.click(`[aria-label="Sign in"]`);
         await page.waitForNavigation();
-        await page.waitForSelector('#ember50');
-        await page.click('#ember50');
+        await page.waitForSelector('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
+        await page.click('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
         await page.waitForSelector('.share-unified-settings-entry-button');
         await page.click('.share-unified-settings-entry-button');
         await page.waitForSelector('#CONTAINER');
@@ -133,7 +133,7 @@ app.post('/post-to-linkedin', async (req, res) => {
             const group = groups[i];
             await group.click();
             await page.click('.share-box-footer__primary-btn');
-            await delay(3000);
+            await delay(1000); // 3000
             await page.evaluate(() => {
                 const primaryBtn = document.querySelector('.share-box-footer__primary-btn.artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view');
                 if (primaryBtn) {
@@ -142,14 +142,14 @@ app.post('/post-to-linkedin', async (req, res) => {
             });
             await page.waitForSelector('div[aria-label="Text editor for creating content"]');
             await page.type('div[aria-label="Text editor for creating content"]', content);
-            await delay(7000);
+            await delay(3000); // 7000
             //! Add Images to post
             const [fileChooser] = await Promise.all([
                 page.waitForFileChooser(),
                 page.click('[aria-label="Add media"]'),
             ]);
             await delay(3000);
-            await fileChooser.accept(['lazy_brain.jpg']);
+            await fileChooser.accept(['working-for-a-startup.jpg']);
             await delay(3000);
             await page.waitForSelector('button[class="share-box-footer__primary-btn artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]');
             await page.click('button[class="share-box-footer__primary-btn artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]');
@@ -158,8 +158,8 @@ app.post('/post-to-linkedin', async (req, res) => {
             await page.waitForSelector('button[class="share-actions__primary-action artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]');
             await page.click('button[class="share-actions__primary-action artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]');
             await delay(8000);
-            await page.waitForSelector('#ember50');
-            await page.click('#ember50');
+            await page.waitForSelector('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
+            await page.click('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
             await page.waitForSelector('.share-unified-settings-entry-button');
             await page.click('.share-unified-settings-entry-button');
             await page.waitForSelector('#CONTAINER');
