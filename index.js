@@ -103,7 +103,6 @@ app.post('/post-to-linkedin', async (req, res) => {
         const browser = await puppeteer.launch({
             headless: false,
             defaultViewport: false,
-            slowMo: 15
         });
         const page = await browser.newPage();
         await page.setDefaultNavigationTimeout(30000);
