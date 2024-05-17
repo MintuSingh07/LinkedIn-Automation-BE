@@ -149,7 +149,7 @@ app.post('/post-to-linkedin', async (req, res) => {
                 page.click('[aria-label="Add media"]'),
             ]);
             await delay(3000);
-            await fileChooser.accept(['lazy_brain.jpg']);
+            await fileChooser.accept(['working-for-a-startup.jpg']);
             await delay(3000);
             await page.waitForSelector('button[class="share-box-footer__primary-btn artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]');
             await page.click('button[class="share-box-footer__primary-btn artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]');
