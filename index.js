@@ -40,7 +40,7 @@ app.post('/post-to-linkedin', async (req, res) => {
             });
         }
 
-        for (let i = 0; i < groups.length - 1; i++) {
+        for (let i = 0; i < groups.length; i++) {
             // Re-query the groups inside the loop to ensure they are still in the DOM [ERROR: Node detached from document]
             const groups = await page.$$('.sharing-shared-generic-list__item-button');
 
@@ -54,46 +54,58 @@ app.post('/post-to-linkedin', async (req, res) => {
                     primaryBtn.click();
                 }
             });
-            await page.waitForSelector('div[aria-label="Text editor for creating content"]');
-            await page.type('div[aria-label="Text editor for creating content"]', content);
-            await delay(3000); // 7000
-            //! Add Images to post
+            await page.evaluate((content) => {
+                const textField = document.querySelector('div[aria-label="Text editor for creating content"] > p');
+                if (textField) {
+                    textField.textContent = content;
+                }
+            }, content);
+            await delay(2000); // 7000 -> 3000
+
+            //! <-- Add Images to post
             const [fileChooser] = await Promise.all([
                 page.waitForFileChooser(),
                 page.click('[aria-label="Add media"]'),
             ]);
-            await delay(3000);
-            await fileChooser.accept(['working-for-a-startup.jpg']);
-            await delay(3000);
+            await delay(2000); // 3000
+            await fileChooser.accept(['post.jpg']);
+            await delay(2000); // 3000
             await page.waitForSelector('button[class="share-box-footer__primary-btn artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]');
             await page.click('button[class="share-box-footer__primary-btn artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]');
-            //! Add Images to post
+            //! Add Images to post -->
+
             await delay(2000);
             await page.waitForSelector('button[class="share-actions__primary-action artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]');
             await page.click('button[class="share-actions__primary-action artdeco-button artdeco-button--2 artdeco-button--primary ember-view"]');
             await delay(8000);
-            await page.waitForSelector('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
-            await page.click('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
-            await page.waitForSelector('.share-unified-settings-entry-button');
-            await page.click('.share-unified-settings-entry-button');
-            await page.waitForSelector('#CONTAINER');
-            await page.click('#CONTAINER');
-        }
-        await page.waitForSelector('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
-        await page.click('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
-        await page.waitForSelector('.share-unified-settings-entry-button');
-        await page.click('.share-unified-settings-entry-button');
-        await page.waitForSelector('button[id="ANYONE"]');
-        await page.click('button[id="ANYONE"]');
-        await page.evaluate(() => {
-            const primaryBtn = document.querySelector('.share-box-footer__primary-btn.artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view');
-            if (primaryBtn) {
-                primaryBtn.click();
+
+            if (i === groups.length - 1) {
+                // Last group
+                await page.waitForSelector('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
+                await page.click('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
+                await page.waitForSelector('.share-unified-settings-entry-button');
+                await page.click('.share-unified-settings-entry-button');
+                await page.waitForSelector('button[id="ANYONE"]');
+                await page.click('button[id="ANYONE"]');
+                await page.evaluate(() => {
+                    const primaryBtn = document.querySelector('.share-box-footer__primary-btn.artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view');
+                    if (primaryBtn) {
+                        primaryBtn.click();
+                    }
+                });
+                console.log('Posting Completed !!!!');
+                await browser.close();
+                res.send('Posting Completed !!!!');
+            } else {
+                // Not the last group
+                await page.waitForSelector('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
+                await page.click('button[class="artdeco-button artdeco-button--muted artdeco-button--4 artdeco-button--tertiary ember-view share-box-feed-entry__trigger"]');
+                await page.waitForSelector('.share-unified-settings-entry-button');
+                await page.click('.share-unified-settings-entry-button');
+                await page.waitForSelector('#CONTAINER');
+                await page.click('#CONTAINER');
             }
-        });
-        console.log('Posting Completed !!!!');
-        await browser.close();
-        res.send('Posting Completed !!!!');
+        }
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Error posting to LinkedIn');
