@@ -12,12 +12,21 @@ app.use(express.json());
 app.post('/post-to-linkedin', async (req, res) => {
     const { content, l_userName, l_password } = req.body;
     const URL = 'https://www.linkedin.com/feed/';
-
+    const browser = await puppeteer.launch({
+        headless: false,
+        defaultViewport: false,
+        args: [
+            "--disable-setuid-sandbox",
+            "--no-sandbox",
+            "--single-process",
+            "--no-zygote",
+        ],
+        executablePath:
+            process.env.NODE_ENV === "production"
+                ? process.env.PUPPETEER_EXECUTABLE_PATH
+                : puppeteer.executablePath(),
+    });
     try {
-        const browser = await puppeteer.launch({
-            headless: false,
-            defaultViewport: false,
-        });
         const page = await browser.newPage();
         await page.setDefaultNavigationTimeout(30000);
         await page.goto(URL, { waitUntil: 'load' });
@@ -94,7 +103,6 @@ app.post('/post-to-linkedin', async (req, res) => {
                     }
                 });
                 console.log('Posting Completed !!!!');
-                await browser.close();
                 res.send('Posting Completed !!!!');
             } else {
                 // Not the last group
@@ -109,6 +117,8 @@ app.post('/post-to-linkedin', async (req, res) => {
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Error posting to LinkedIn');
+    } finally {
+        await browser.close();
     }
 });
 
